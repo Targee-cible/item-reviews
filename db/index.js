@@ -1,8 +1,9 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 
 // const { DB_HOST } = process.env;
 
-const mongoUri = 'mongodb://localhost:27017/reviews';
+const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/reviews';
 
 mongoose.connect(mongoUri, { useNewUrlParser: true, useCreateIndex: true });
 

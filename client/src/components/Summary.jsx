@@ -7,7 +7,6 @@ import Rater from 'react-rater';
 import 'react-rater/lib/react-rater.css';
 
 const Charts = ({ chart }) => {
-
   const key = Object.keys(chart);
   const value = Object.values(chart);
   return (

@@ -86,7 +86,17 @@ const findOne = (req, res, next) => {
 };
 
 const update = (req, res, next) => {
+  var id = req.params.id;
+  var reviewData = req.body;
 
+  Reviews.update({ _id: id }, reviewData, (err, review) => {
+    if (err) {
+      console.log('update error', err);
+      res.status(400).json({ success: false, message: 'Could not update review in our Database' });
+    } else {
+      res.status(200).json(review);
+    }
+  });
 };
 
 const destroy = (req, res, next) => {

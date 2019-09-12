@@ -1,20 +1,19 @@
 const mysql = require('mysql');
-const createDbAndTables = require('./migrate');
 const Promise = require('bluebird');
-const database = 'tcreviews';
 require('dotenv').config();
 
+const database = process.env.MYSQL_DB || 'tcreviews';
+
 const connection = mysql.createConnection({
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD
+  host: process.env.MYSQL_HOST || 'localhost',
+	user: process.env.MYSQL_USER || 'root',
+  password: process.env.MYSQL_PASSWORD || '',
+  database: database
 });
 
 const db = Promise.promisifyAll(connection, { multiArgs: true });
 
 db.connectAsync()
-  .then(() => console.log(`Connected to ${database} database as ID ${db.threadId}`))
-  .then(() => db.queryAsync(`CREATE DATABASE IF NOT EXISTS ${database}`))
-  .then(() => db.queryAsync(`USE ${database}`))
-  .then(() => createDbAndTables(db));
+  .then(() => console.log(`Connected to ${database} database as ID ${db.threadId}`));
 
 module.exports = db;

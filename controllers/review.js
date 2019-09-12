@@ -73,7 +73,16 @@ const findFromProduct = (req, res, next) => {
 };
 
 const findOne = (req, res, next) => {
+  var id = req.params.id;
 
+  Reviews.findOne({ _id: id }, (err, review) => {
+    if (err) {
+      console.log('error fetching review', err);
+      res.status(400).json({ success: false, message: 'Could not fetch review from our Database' });
+    } else {
+      res.status(200).json(review);
+    }
+  });
 };
 
 const update = (req, res, next) => {

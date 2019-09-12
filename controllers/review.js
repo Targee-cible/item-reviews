@@ -89,18 +89,27 @@ const update = (req, res, next) => {
   var id = req.params.id;
   var reviewData = req.body;
 
-  Reviews.update({ _id: id }, reviewData, (err, review) => {
+  Reviews.update({ _id: id }, reviewData, (err, result) => {
     if (err) {
       console.log('update error', err);
       res.status(400).json({ success: false, message: 'Could not update review in our Database' });
     } else {
-      res.status(200).json(review);
+      res.status(200).json({success: true});
     }
   });
 };
 
 const destroy = (req, res, next) => {
+  var id = req.params.id;
 
+  Reviews.find({ _id: id }).remove((err, results) => {
+    if (err) {
+      console.log('error deleting review', err);
+      res.status(400).json({ success: false, message: 'Could not delete review from our Database' });
+    } else {
+      res.status(200).json({success: true});
+    }
+  });
 };
 
 

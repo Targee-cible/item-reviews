@@ -22,7 +22,8 @@
     "test:coverage": "jest --coverage",
     "test:mocks": "node db/faker/index.js",
     "seed": "node db/seed.js",
-    "migrate": "node mysql/migrate.js",
+    "migrate:mysql": "node mysql/migrate.js",
+    "seed:mysql": "node mysql/seed.js",
     "start": "nodemon server/server.js",
     "react-dev": "webpack -d --watch --watch-poll",
     "build": "webpack"

@@ -1,8 +1,9 @@
 const mysql = require('mysql');
 const createDbAndTables = require('./migrate');
 const Promise = require('bluebird');
-const database = process.env.MYSQL_NAME || 'tcreviews';
 require('dotenv').config();
+
+const database = process.env.MYSQL_DB || 'tcreviews';
 
 // intialize to connect to mysql without Database yet
 const connection = mysql.createConnection({
@@ -14,9 +15,9 @@ const connection = mysql.createConnection({
 
 
 const SQL_SCRIPT = `
-DROP DATABASE IF EXISTS tcreviews;
-CREATE DATABASE tcreviews;
-USE tcreviews;
+DROP DATABASE IF EXISTS ${database};
+CREATE DATABASE ${database};
+USE ${database};
 
 CREATE TABLE reviews (
   id integer AUTO_INCREMENT PRIMARY KEY,

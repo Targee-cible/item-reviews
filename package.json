@@ -24,6 +24,7 @@
     "seed": "node db/seed.js",
     "migrate:mysql": "node mysql/migrate.js",
     "seed:mysql": "node mysql/seed.js",
+    "seed:neo4j": "node neo4j/seed.js",
     "start": "nodemon server/server.js",
     "react-dev": "webpack -d --watch --watch-poll",
     "build": "webpack"
@@ -37,6 +38,7 @@
     "moment": "^2.24.0",
     "mongoose": "^5.6.10",
     "mysql": "^2.17.1",
+    "neo4j-driver": "^1.7.6",
     "path": "^0.12.7",
     "prop-types": "^15.7.2",
     "react": "^16.9.0",

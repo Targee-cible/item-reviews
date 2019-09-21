@@ -88,12 +88,12 @@ Summary.propTypes = {
   summary: PropTypes.shape({
     reviews: PropTypes.number,
     recommends: PropTypes.number,
-    overall: PropTypes.string,
-    quality: PropTypes.string,
-    sizing: PropTypes.string,
-    style: PropTypes.string,
-    value: PropTypes.string,
-    comfort: PropTypes.string,
+    overall: PropTypes.number,
+    quality: PropTypes.number,
+    sizing: PropTypes.number,
+    style: PropTypes.number,
+    value: PropTypes.number,
+    comfort: PropTypes.number,
   }).isRequired,
 };
 

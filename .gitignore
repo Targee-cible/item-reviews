@@ -6,4 +6,5 @@ examples
 client/dist/bundle.js
 .env
 coverage/
+public/*.csv
 

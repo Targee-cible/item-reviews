@@ -1,5 +1,5 @@
-require('../db/index.js');
-const Reviews = require('../models/Reviews');
+require('../../db/index.js');
+const Reviews = require('../../models/Reviews');
 
 const sumRatings = (reviews) => reviews.reduce((acc, review) => {
   const keys = Object.keys(review.ratings);

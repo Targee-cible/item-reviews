@@ -1,34 +1,18 @@
-var neo4j = require('neo4j-driver').v1;
 require('dotenv').config();
+const session = require('./');
 const generator = require('./../data/reviews.js');
-
-var protocol = process.env.NEO4J_PROTOCOL || 'bolt';
-var host = process.env.NEO4J_HOST || 'localhost';
-var user = process.env.NEO4J_USERNAME || 'neo4j';
-var password = process.env.NEO4J_PASSWORD || 'neo4j';
-var database = process.env.NEO4J_DB || 'tcreviews';
-
-
-//console.log(protocol, host, user, password);
-
-var driver = neo4j.driver(
-  `${protocol}://${host}`,
-  neo4j.auth.basic(user, password)
-);
-
-const session = driver.session(neo4j.session.READ);
 
 // Generate a batch of N data and insert N records at once in MySQL Database
 // Do Recursion until we reach the target size of 10M
 //let targetSize = 10 * 1000 * 1000;
 //let batchSize = 10 * 1000;
-let targetSize = 1 * 1000 * 1000;
+let targetSize = 200 * 1000;
 let batchSize = 250;
 
-var getNeo4jCypher = (fromId, toId) => {
-  const data = generator.generateReviewsAndRatings(fromId, toId);
-  let reviews = data.reviews;
-  let ratings = data.ratings;
+// generate data once. then add batchSize to id each time
+const data = generator.generateReviewsAndRatings(1, batchSize);
+
+var getNeo4jCypher = (fromId) => {
 
   // REVIEWS & RATINGS SCRIPT
   let CREATE_SCRIPT = 'CREATE ';
@@ -40,14 +24,15 @@ var getNeo4jCypher = (fromId, toId) => {
 
   // Review cypher part
   // (rev1:Review { title: "Nice Product", review: "My Review" }),
-  reviews = reviews.map((review, ind) => {
+  let reviews = data.reviews.map((review, ind) => {
     // Prepare relation cypher part here to avoid looping twice
     relScript += `(rev${review.id})-[:RATE]->(rat${review.id})`;
-    if (ind < reviews.length - 1) {
+    if (ind < data.reviews.length - 1) {
       relScript += ',';
     }
 
     let script = `{
+      _id: ${review.id + fromId - 1},
       title: "${review.title}",
       review: "${review.review}",
       customerName: "${review.customerName}",
@@ -62,7 +47,7 @@ var getNeo4jCypher = (fromId, toId) => {
 
   // Rating cypher part
   // (rat1:Rating { overall: 4, quality: 5 }),
-  ratings = ratings.map((rating) => {
+  let ratings = data.ratings.map((rating) => {
     let script = `{
       overall: ${rating.overall},
       quality: ${rating.quality},
@@ -84,40 +69,41 @@ var getNeo4jCypher = (fromId, toId) => {
 
 // Recursive function to create batch insertion
 // Return a Promise
-const runCreateCypher = (fromId, toId) => {
-  let createCypher = getNeo4jCypher(fromId, toId);
+const runCreateCypher = (fromId) => {
+  let createCypher = getNeo4jCypher(fromId);
 
   return session.run(createCypher)
     .then(result => {
 
-      if (toId % 1000 === 0) {
-        console.log(`Tables Review and Rating has been seeded successfully from ${fromId} to ${toId}`);
+      if ((fromId + batchSize - 1) % 1000 === 0) {
+        console.log(`Tables Review and Rating has been seeded successfully from ${fromId} to ${fromId + batchSize - 1}`);
       }
 
       // If target size records reached, end process
-      if (toId < targetSize) {
+      if ((fromId + batchSize - 1) < targetSize) {
         // recursion on runCreateCypher for other IDs
         // ex: with batchSize of 1000
         // if it was runCreateCypher(1001, 2000)
         // it could be runCreateCypher(2001, 3000)
-        return runCreateCypher(toId + 1, toId + batchSize);
+        return runCreateCypher(fromId + batchSize);
       }
     });
 }
 
 
 // delete data first
-let deleteCypher = 'MATCH (n) DETACH DELETE n';
+//let deleteCypher = 'MATCH (n) DETACH DELETE n';
+let deleteCypher = 'RETURN "continue"';
 
 session.run(deleteCypher)
   .then(result => {
     console.log(result);
-    return runCreateCypher(1, batchSize);
+    return runCreateCypher(150001);
   })
   .then(result => {
     console.log(result);
     `Tables Review and Rating has been seeded successfully with ${targetSize} records`
-    session.close()
+    session.close();
   })
   .catch(err => {
     console.log('error', err);

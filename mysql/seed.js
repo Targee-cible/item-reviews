@@ -8,11 +8,12 @@ const generator = require('./../data/reviews.js');
 let targetSize = 10 * 1000 * 1000;
 let batchSize = 10 * 1000;
 
+const data = generator.generateReviewsAndRatings(1, batchSize);
+
 var getMysqlScripts = (fromId, toId) => {
-  const data = generator.generateReviewsAndRatings(fromId, toId);
 
   // REVIEWS SCRIPT
-  var REVIEWS_SCRIPT = `INSERT INTO reviews(id, title, review, customerName, purchaseDate, productId, helpful, recommend) VALUES `;
+  var REVIEWS_SCRIPT = `INSERT INTO reviews(_id, title, review, customerName, purchaseDate, productId, helpful, recommend) VALUES `;
   var REVIEWS_VALUES_SCRIPT = data.reviews.map((review) => {
     var reviewVals = Object.values(review);
     reviewVals = reviewVals.map((val) => {
@@ -24,7 +25,8 @@ var getMysqlScripts = (fromId, toId) => {
 
   var reviewsValues = [];
 
-  data.reviews.forEach((review) => {
+  data.reviews.forEach((review, ind) => {
+    review.id = fromId + ind;
     var reviewVals = Object.values(review);
     reviewVals = reviewVals.forEach((val) => {
       reviewsValues.push(val);
@@ -36,7 +38,7 @@ var getMysqlScripts = (fromId, toId) => {
   //console.log(REVIEWS_SCRIPT);
 
   // RATINGS SCRIPT
-  var RATINGS_SCRIPT = `INSERT INTO ratings(id, reviewId, overall, quality, sizing, style, value, comfort) VALUES `;
+  var RATINGS_SCRIPT = `INSERT INTO ratings(_id, reviewId, overall, quality, sizing, style, value, comfort) VALUES `;
 
   var RATINGS_VALUES_SCRIPT = data.ratings.map((rating) => {
     var ratingVals = Object.values(rating);
@@ -50,7 +52,10 @@ var getMysqlScripts = (fromId, toId) => {
 
   var ratingsValues = [];
 
-  data.ratings.forEach((rating) => {
+  data.ratings.forEach((rating, ind) => {
+    rating.id = fromId + ind;
+    rating.reviewId = fromId + ind;
+
     var ratingVals = Object.values(rating);
     ratingVals = ratingVals.forEach((val) => {
       ratingsValues.push(val);

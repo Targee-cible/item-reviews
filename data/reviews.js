@@ -14,7 +14,7 @@ module.exports.generateReviewsAndRatings = (fromId, toId) => {
     const comfort = faker.random.number({ min: 1, max: 5 });
     const customerName = faker.internet.userName();
     const purchaseDate = faker.date.recent();
-    const productId = faker.random.number({ min: 1, max: 100 });
+    const productId = faker.random.number({ min: 1, max: 10000 });
     const helpful = faker.random.boolean();
     const recommend = faker.random.boolean();
 

@@ -1,0 +1,128 @@
+const mysql = require('../../mysql');
+const neo4j = require('../../neo4j');
+
+let driver = process.env.DB_DRIVER || 'mysql';
+console.log('db driver', driver);
+
+module.exports.findFromProduct = (productId, limit = 20, callback) => {
+
+  if (driver === 'mysql') {
+    var revScript =`
+      SELECT *
+      FROM reviews
+      INNER JOIN ratings ON ratings.reviewId = reviews._id
+      WHERE productId = ?
+      ORDER BY reviews._id DESC
+      LIMIT ?
+    `;
+
+    var summaryScript = `
+      SELECT
+      round(sum(rat.overall)/count(rev._id), 1) as overall,
+      round(sum(rat.quality)/count(rev._id), 1) as quality,
+      round(sum(rat.sizing)/count(rev._id), 1) as sizing,
+      round(sum(rat.style)/count(rev._id), 1) as style,
+      round(sum(rat.value)/count(rev._id), 1) as value,
+      round(sum(rat.comfort)/count(rev._id), 1) as comfort,
+      sum(rev.recommend = 1) as recommends,
+      count(rev._id) as reviews
+      FROM ratings as rat
+      INNER JOIN reviews as rev ON rev._id = rat.reviewId
+      WHERE productId = ?
+    `;
+
+    mysql.query(revScript, [productId, limit], (err, reviews) => {
+      if (err) {
+        callback(err);
+        return;
+      }
+
+      // set rating fields as an object
+      reviews.forEach(rev => {
+        let rat = {
+          overall: rev.overall,
+          quality: rev.quality,
+          sizing: rev.sizing,
+          style: rev.style,
+          value: rev.value,
+          comfort: rev.comfort
+        }
+
+        rev.ratings = rat;
+
+        delete rev.overall;
+        delete rev.quality;
+        delete rev.sizing;
+        delete rev.style;
+        delete rev.value;
+        delete rev.comfort;
+      })
+
+      mysql.query(summaryScript, [productId], (err, results) => {
+        if (err) {
+          callback(err);
+          return;
+        }
+
+        callback(null, { reviews, summary: results[0] });
+      });
+    });
+
+  } if (driver === 'neo4j') {
+
+    var cypher = `
+      MATCH (rev:Review)
+      WHERE productId = ${productId}
+      RETURN {
+        _id: rev._id,
+        title: rev.title,
+        review: rev.review,
+        customerName: rev.customerName,
+        purchaseDate: rev.purchaseDate,
+        productId: rev.productId,
+        helpful: rev.helpful,
+        recommend: rev.recommend,
+        ratings: {
+          overall: rev.overall,
+          sizing: rev.sizing,
+          style: rev.style,
+          value: rev.value,
+          comfort: rev.comfort,
+          quality: rev.quality
+        }
+      }
+      LIMIT ${limit}
+    `;
+
+    //ORDER BY rev._id DESC
+
+    neo4j.run(cypher)
+      .then(result => {
+        result = result.records.map((rec) => {
+          return rec._fields[0];
+        });
+
+        callback(null, result);
+      })
+      .catch(err => {
+        callback(err);
+      });
+  }
+
+};
+
+module.exports.findOne = (id, callback) => {
+
+};
+
+module.exports.create = (data, callback) => {
+
+};
+
+module.exports.update = (id, data, callback) => {
+
+};
+
+module.exports.destroy = (id, callback) => {
+
+};

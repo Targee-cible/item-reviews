@@ -20,25 +20,30 @@ CREATE DATABASE ${database};
 USE ${database};
 
 CREATE TABLE reviews (
-  id integer AUTO_INCREMENT PRIMARY KEY,
+  _id integer AUTO_INCREMENT PRIMARY KEY,
   title varchar(255),
   review text,
-  customerName varchar(255),
+  customerName varchar(255) NOT NULL,
   purchaseDate date,
-  productId integer,
+  productId integer NOT NULL,
   helpful boolean,
-  recommend boolean
+  recommend boolean,
+
+  INDEX (productId),
+  INDEX (customerName)
 );
 
 CREATE TABLE ratings (
-  id integer AUTO_INCREMENT PRIMARY KEY,
+  _id integer AUTO_INCREMENT PRIMARY KEY,
   reviewId integer,
   overall smallInt,
   quality smallInt,
   sizing smallInt,
   style smallInt,
   value smallInt,
-  comfort smallInt
+  comfort smallInt,
+
+  FOREIGN KEY (reviewId) REFERENCES reviews(_id)
 );
 `;
 

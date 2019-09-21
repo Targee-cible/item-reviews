@@ -2,8 +2,8 @@ require('dotenv').config();
 const path = require('path');
 const express = require('express');
 
-const controllers = require('../controllers');
-const ReviewController = require('../controllers/review');
+const controllers = require('./controllers');
+const ReviewController = require('./controllers/review');
 
 const app = express();
 const cors = (req, res, next) => {

@@ -1,11 +1,16 @@
 /* eslint-disable no-console */
 import React from 'react';
+// use axios instead to fetch reviews via API
+import axios from 'axios';
 
 import Summary from './Summary';
 import Filters from './Filters';
 import Reviews from './Reviews';
 
-import GetReviews from '../controllers';
+// remove old client code that fetch reviews directly from MongoDB
+// instead of API call
+// import GetReviews from '../controllers';
+
 
 class App extends React.Component {
   constructor() {
@@ -22,7 +27,7 @@ class App extends React.Component {
     this.getReviews();
   }
 
-  async getReviews() {
+  /* async getReviews() {
     try {
       const response = await GetReviews();
       if (response !== undefined) {
@@ -34,7 +39,20 @@ class App extends React.Component {
         });
       }
     } catch (err) { console.log('error', err); }
+  } */
+
+  getReviews() {
+    axios.get('/api/product/1/reviews')
+      .then((response) => {
+        const { reviews, summary } = response.data;
+        this.setState({
+          loading: false,
+          reviews,
+          summary,
+        });
+      });
   }
+
 
   render() {
     const {

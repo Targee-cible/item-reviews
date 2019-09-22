@@ -115,7 +115,32 @@ module.exports.findOne = (id, callback) => {
 
 };
 
-module.exports.create = (data, callback) => {
+module.exports.create = (review, callback) => {
+  var ratingsValues = Object.values(review.ratings);
+  delete review.ratings;
+  var reviewsValues = Object.values(review);
+  var values = reviewsValues.concat(ratingsValues);
+
+  if (driver === 'mysql') {
+    var script = `INSERT INTO reviews(title, review, customerName, purchaseDate, productId, helpful, recommend) VALUES (?, ?, ?, ?, ?, ?, ?);`;
+
+    script += `INSERT INTO ratings(reviewId, overall, quality, sizing, style, value, comfort) VALUES (LAST_INSERT_ID(), ?, ?, ?, ?, ?, ?);`;
+
+    mysql.query(script, values, function(err, rows, fields) {
+      if (err) {
+        console.log('Error creating review', err);
+        callback(err);
+        return;
+      }
+
+      // Get last Inserted Id to unshift it to ratings array
+      console.log('Review and rating created successfully');
+      callback(null, rows);
+    });
+
+  } else {
+    // Neo4j or MongoDB
+  }
 
 };
 

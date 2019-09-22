@@ -7,4 +7,4 @@ client/dist/bundle.js
 .env
 coverage/
 public/*.csv
-
+newrelic_agent.log

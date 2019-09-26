@@ -6,11 +6,10 @@ const generator = require('./../data/reviews.js');
 // Generate a batch of N data and insert N records at once in MySQL Database
 // Do Recursion until we reach the target size of 10M
 let targetSize = 10 * 1000 * 1000;
-let batchSize = 10 * 1000;
-
-const data = generator.generateReviewsAndRatings(1, batchSize);
+let batchSize = 1000;
 
 var getMysqlScripts = (fromId, toId) => {
+  const data = generator.generateReviewsAndRatings(fromId, toId);
 
   // REVIEWS SCRIPT
   var REVIEWS_SCRIPT = `INSERT INTO reviews(_id, title, review, customerName, purchaseDate, productId, helpful, recommend) VALUES `;
@@ -27,8 +26,6 @@ var getMysqlScripts = (fromId, toId) => {
 
   data.reviews.forEach((review, ind) => {
     review.id = fromId + ind;
-    // reset productId to random
-    review.productId = Math.floor(Math.random() * 100 + 1);
 
     var reviewVals = Object.values(review);
     reviewVals = reviewVals.forEach((val) => {

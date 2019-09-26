@@ -3,7 +3,7 @@ require('newrelic');
 const path = require('path');
 const express = require('express');
 
-const controllers = require('./controllers');
+//const controllers = require('./controllers');
 const ReviewController = require('./controllers/review');
 
 const app = express();
@@ -20,7 +20,7 @@ app.use(express.json());
 app.get('/', (req, res) => res.send('OK'));
 
 // API Routes
-app.get('/api/product/reviews', controllers);
+//app.get('/api/product/reviews', controllers);
 
 
 // Create a new Review

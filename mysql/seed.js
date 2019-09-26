@@ -27,6 +27,9 @@ var getMysqlScripts = (fromId, toId) => {
 
   data.reviews.forEach((review, ind) => {
     review.id = fromId + ind;
+    // reset productId to random
+    review.productId = Math.floor(Math.random() * 100 + 1);
+
     var reviewVals = Object.values(review);
     reviewVals = reviewVals.forEach((val) => {
       reviewsValues.push(val);

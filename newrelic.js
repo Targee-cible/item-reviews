@@ -9,7 +9,7 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: ['Targee Cible Reviews'],
+  app_name: [process.env.NEWRELIC_APP_NAME],
   /**
    * Your New Relic license key.
    */

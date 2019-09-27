@@ -4,9 +4,26 @@ const neo4j = require('../../neo4j');
 let driver = process.env.DB_DRIVER || 'mysql';
 console.log('db driver', driver);
 
+const LRUCache = require('lru-cache');
+var cache = new LRUCache({
+  max : 100,                   // The maximum number of items allowed in the cache
+  max_age : 30 * 60 * 1000     // The maximum life of a cached item in milliseconds
+});
+
 module.exports.findFromProduct = (productId, limit = 20, callback) => {
 
   if (driver === 'mysql') {
+
+    let cache_key = 'reviews:' + productId;
+
+    let data = cache.get(cache_key);
+
+    if (data) {
+      console.log('cache found');
+      callback(null, data);
+      return;
+    }
+
     var revScript =`
       SELECT *
       FROM reviews
@@ -64,7 +81,11 @@ module.exports.findFromProduct = (productId, limit = 20, callback) => {
           return;
         }
 
-        callback(null, { reviews, summary: results[0] });
+        let data = { reviews, summary: results[0] };
+
+        cache.set(cache_key, data);
+
+        callback(null, data);
       });
     });
 

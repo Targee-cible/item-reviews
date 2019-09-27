@@ -4,6 +4,7 @@ examples
 .DS_Store
 .vscode
 client/dist/bundle.js
+client/dist/*.txt
 .env
 coverage/
 public/*.csv

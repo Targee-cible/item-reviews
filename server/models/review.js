@@ -19,7 +19,6 @@ module.exports.findFromProduct = (productId, limit = 20, callback) => {
     let data = cache.get(cache_key);
 
     if (data) {
-      console.log('cache found');
       callback(null, data);
       return;
     }
